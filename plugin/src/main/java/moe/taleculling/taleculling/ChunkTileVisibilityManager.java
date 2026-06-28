@@ -1,98 +1,162 @@
 package moe.taleculling.taleculling;
 
-import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
-import com.logisticscraft.occlusionculling.util.Vec3d;
 import moe.taleculling.taleculling.adapter.IAdapter;
-import moe.taleculling.taleculling.occlusionculling.PaperDataProvider;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 
 public class ChunkTileVisibilityManager {
 
-	private final IAdapter adapter;
-	private final PlayerChunkTracker playerTracker;
-	private final VisibilityCache visibilityCache;
-	private final ChunkCache chunkCache;
+    private static final double TileRayStyep = 0.25D;
 
-	private final PaperDataProvider dataProvider;
-	private final OcclusionCullingInstance culling;
+    private final IAdapter adapter;
+    private final PlayerChunkTracker playerTracker;
+    private final VisibilityCache visibilityCache;
+    private final ChunkCache chunkCache;
 
-	private final Vec3d viewerPosition = new Vec3d(0, 0, 0);
-	private final Vec3d aabbMin = new Vec3d(0, 0, 0);
-	private final Vec3d aabbMax = new Vec3d(0, 0, 0);
+    public ChunkTileVisibilityManager(IAdapter adapter, PlayerChunkTracker playerTracker, VisibilityCache visibilityCache, ChunkCache chunkCache) {
+        this.adapter = adapter;
+        this.playerTracker = playerTracker;
+        this.visibilityCache = visibilityCache;
+        this.chunkCache = chunkCache;
+    }
 
-	public ChunkTileVisibilityManager(SettingsHolder settings, IAdapter adapter, PlayerChunkTracker playerTracker, VisibilityCache visibilityCache, ChunkCache chunkCache) {
-		this.adapter = adapter;
-		this.playerTracker = playerTracker;
-		this.visibilityCache = visibilityCache;
-		this.chunkCache = chunkCache;
+    public void updateVisibility(Player player) {
+        World world = player.getWorld();
 
-		dataProvider = new PaperDataProvider(chunkCache);
-		culling = new OcclusionCullingInstance(settings.getTileRange(), dataProvider);
-	}
+        long[] trackedChunks = playerTracker.getTrackedChunks(player);
+        if (trackedChunks == null) {
+            return;
+        }
 
-	public void updateVisibility(Player player) {
-		World world = player.getWorld();
-		Location playerEyeLocation = player.getEyeLocation();
+        for (long chunkKey : trackedChunks) {
+            List<BlockState> tiles = chunkCache.getChunkTiles(world, chunkKey);
+            if (tiles == null) {
+                continue;
+            }
 
-		viewerPosition.set(playerEyeLocation.getX(), playerEyeLocation.getY(), playerEyeLocation.getZ());
+            for (BlockState block : tiles) {
+                Location location = block.getLocation();
 
-		culling.resetCache();
-		dataProvider.setWorld(world);
+                if (visibilityCache.isBwockHidden(player, location) &&  canSeeTile(player, block)) {
+                    visibilityCache.setBwockHidden(player, location, false);
+                    sendRealTile(player, block);
+                } else if (!visibilityCache.isBwockHidden(player, location) && ! canSeeTile(player, block)) {
+                    visibilityCache.setBwockHidden(player, location, true);
+                    sendHiddenTile(player, block);
+                }
+            }
+        }
+    }
 
-		long[] trackedChunks = playerTracker.getTrackedChunks(player);
-		if (trackedChunks == null) {
-			return;
-		}
-		for (long chunkKey : trackedChunks) {
-			List<BlockState> tiles = chunkCache.getChunkTiles(world, chunkKey);
-			if (tiles == null) {
-				continue;
-			}
-			for (BlockState block : tiles) {
-				aabbMin.set(block.getX(), block.getY(), block.getZ());
-				aabbMax.set(block.getX() + 1, block.getY() + 1, block.getZ() + 1);
-				Location bloc = block.getLocation();
-				boolean canSee = culling.isAABBVisible(aabbMin, aabbMax, viewerPosition);
-				boolean hidden = visibilityCache.isBwockHidden(player, bloc);
-				if (hidden && canSee) {
-					visibilityCache.setBwockHidden(player, bloc, false);
-					adapter.hideTile(player, bloc, block.getBlockData());
-					if (block instanceof TileState) {
-						adapter.showTile(player, bloc, block);
-					}
-				} else if (!hidden && !canSee) {
-					visibilityCache.setBwockHidden(player, bloc, true);
-					adapter.hideTile(player, bloc, null);
-				}
-			}
-		}
+    public void restoreVisibility(Player player) {
+        World world = player.getWorld();
 
-		// Prevent memory leak
-		dataProvider.setWorld(null);
-	}
+        long[] trackedChunks = playerTracker.getTrackedChunks(player);
+        if (trackedChunks == null) {
+            return;
+        }
+        for (long chunkKey : trackedChunks) {
+            List<BlockState> tiles = chunkCache.getChunkTiles(world, chunkKey);
+            if (tiles == null) {
+                continue;
+            }
+            for (BlockState block : tiles) {
+                Location location = block.getLocation();
+                if (!visibilityCache.isBwockHidden(player, location)) {
+                    continue;
+                }
+                visibilityCache.setBwockHidden(player, location, false);
+                sendRealTile(player, block);
+            }
+        }
+    }
 
-	public void restoreVisibility(Player player) {
-		World world = player.getWorld();
-		long[] trackedChunks = playerTracker.getTrackedChunks(player);
-		if (trackedChunks == null) {
-			return;
-		}
-		for (long chunkKey : trackedChunks) {
-			List<BlockState> tiles = chunkCache.getChunkTiles(world, chunkKey);
-			if (tiles == null) {
-				continue;
-			}
-			for (BlockState block : tiles) {
-				Location bloc = block.getLocation();
-				adapter.hideTile(player, bloc, block.getBlockData());
-				adapter.showTile(player, bloc, block);
-			}
-		}
-	}
+    private void sendHiddenTile(Player player, BlockState block) {
+        adapter.hideTile(player, block.getLocation(), null);
+    }
+
+    private void sendRealTile(Player player, BlockState block) {
+        Location location = block.getLocation();
+
+        // firstly, restore real block data
+        // then if it was TileState - restore tile data
+        adapter.hideTile(player, location, block.getBlockData());
+
+        if (block instanceof TileState) {
+            adapter.showTile(player, location, block);
+        }
+    }
+
+    private boolean canSeeTile(Player player, BlockState blockState) {
+        Location eye = player.getEyeLocation();
+        Location blockLocation = blockState.getLocation();
+
+        if (!eye.getWorld().equals(blockLocation.getWorld())) {
+            return false;
+        }
+
+        int x = blockLocation.getBlockX();
+        int y = blockLocation.getBlockY();
+        int z = blockLocation.getBlockZ();
+
+        return clearLineToTile(eye, new Vector(x + 0.5D, y + 0.5D, z + 0.5D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.5D, y + 0.85D, z + 0.5D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.5D, y + 0.15D, z + 0.5D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.15D, y + 0.5D, z + 0.5D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.85D, y + 0.5D, z + 0.5D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.5D, y + 0.5D, z + 0.15D), blockState)
+                || clearLineToTile(eye, new Vector(x + 0.5D, y + 0.5D, z + 0.85D), blockState);
+    }
+
+    private boolean clearLineToTile(Location from, Vector target, BlockState targetBlockState) {
+        World world = from.getWorld();
+
+        Vector start = from.toVector();
+        Vector direction = target.clone().subtract(start);
+        double distance = direction.length();
+
+        if (distance <= 0.01D) {
+            return true;
+        }
+
+        direction.normalize();
+
+        int targetX = targetBlockState.getX();
+        int targetY = targetBlockState.getY();
+        int targetZ = targetBlockState.getZ();
+
+        double traveled = 0.0D;
+
+        while (traveled < distance) {
+            Vector current = start.clone().add(direction.clone().multiply(traveled));
+
+            // tile shouldnt block trace from themselves
+            if (current.getBlockX() == targetX && current.getBlockY() == targetY && current.getBlockZ() == targetZ) {
+                traveled += TileRayStyep;
+                continue;
+            }
+            Block block = world.getBlockAt(current.getBlockX(), current.getBlockY(), current.getBlockZ());
+
+            if (isBlocking(block.getType())) {
+                return false;
+            }
+            traveled += TileRayStyep;
+        }
+        return true;
+    }
+
+    private boolean isBlocking(Material material) {
+        if (material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR) {
+            return false;
+        }
+        return CullingPlugin.isOccluding(material);
+    }
 }

@@ -50,7 +50,7 @@ public class CullingPlugin extends JavaPlugin {
         playerChunkTracker = new PlayerChunkTracker(this);
         visibilityCache = new VisibilityCache();
         chunkCache = new ChunkCache(this, hiddenTileRegistry);
-        chunkTileVisibilityManager = new ChunkTileVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache, chunkCache);
+        chunkTileVisibilityManager = new ChunkTileVisibilityManager(adapter, playerChunkTracker, visibilityCache, chunkCache);
         chunkEntityVisibilityManager = new ChunkEntityVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache);
 
         getServer().getPluginManager().registerEvents(playerChunkTracker, this);

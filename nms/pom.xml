@@ -7,11 +7,11 @@
 	<parent>
 		<groupId>moe.taleculling.taleculling</groupId>
 		<artifactId>taleculling-parent</artifactId>
-		<version>0.2.0</version>
+		<version>0.2.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>taleculling-nms</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 
 </project>
