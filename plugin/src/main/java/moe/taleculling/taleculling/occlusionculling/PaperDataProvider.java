@@ -9,8 +9,11 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
 
+import java.lang.reflect.Method;
+
 public class PaperDataProvider implements DataProvider {
 
+    private static final Method MinheightMethod = findMinHeightThingy();
     private final ChunkCache chunkCache;
 
     private World world;
@@ -43,9 +46,11 @@ public class PaperDataProvider implements DataProvider {
         if (snapshot == null) {
             throw new IllegalStateException("Chunk not loaded into DataProvider!");
         }
-        if (y < world.getMinHeight() || y > world.getMaxHeight()) {
+
+        if (y < getMinHeightNya(world) || y >= world.getMaxHeight()) {
             return false;
         }
+
         int relativeX = x & 0xF;
         int relativeZ = z & 0xF;
         Material material = snapshot.getBlockType(relativeX, y, relativeZ);
@@ -59,5 +64,28 @@ public class PaperDataProvider implements DataProvider {
 
     @Override
     public void checkingPosition(Vec3d[] targetPoints, int size, Vec3d viewerPosition) {
+    }
+
+
+    // in case if there is a -64 height in 1.17+ MC versions
+    private static Method findMinHeightThingy() {
+        try {
+            return World.class.getMethod("getMinHeight");
+        } catch (NoSuchMethodException ignored) {
+            return null;
+        }
+    }
+
+    private static int getMinHeightNya(World world) {
+        if (MinheightMethod == null) {
+            return 0;
+        }
+        try {
+            Object result = MinheightMethod.invoke(world);
+            if (result instanceof Integer) {
+                return (Integer) result;
+            }
+        } catch (Exception ignored) {}
+        return 0;
     }
 }
