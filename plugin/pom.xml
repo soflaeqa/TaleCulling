@@ -5,41 +5,41 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>it.feargames.tileculling</groupId>
-		<artifactId>tileculling-parent</artifactId>
-		<version>1.2.5-SNAPSHOT</version>
+		<groupId>moe.taleculling.taleculling</groupId>
+		<artifactId>taleculling-parent</artifactId>
+		<version>0.1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>tileculling-plugin</artifactId>
-	<version>1.2.5-SNAPSHOT</version>
+	<artifactId>taleculling-plugin</artifactId>
+	<version>0.1.0</version>
 
 	<dependencies>
 		<dependency>
-			<groupId>it.feargames.tileculling</groupId>
-			<artifactId>tileculling-v1_16_R3</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
+			<groupId>moe.taleculling.taleculling</groupId>
+			<artifactId>taleculling-v1_16_R3</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+        <!-- <dependency>
+			<groupId>moe.taleculling.taleculling</groupId>
+			<artifactId>taleculling-v1_17_R1</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>it.feargames.tileculling</groupId>
-			<artifactId>tileculling-v1_17_R1</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
+			<groupId>moe.taleculling.taleculling</groupId>
+			<artifactId>taleculling-v1_18_R1</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>it.feargames.tileculling</groupId>
-			<artifactId>tileculling-v1_18_R1</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
+			<groupId>moe.taleculling.taleculling</groupId>
+			<artifactId>taleculling-v1_18_R2</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>it.feargames.tileculling</groupId>
-			<artifactId>tileculling-v1_18_R2</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>it.feargames.tileculling</groupId>
-			<artifactId>tileculling-v1_19_R1</artifactId>
-			<version>1.2.5-SNAPSHOT</version>
-		</dependency>
+			<groupId>moe.taleculling.taleculling</groupId>
+			<artifactId>taleculling-v1_19_R1</artifactId>
+			<version>0.1.0</version>
+		</dependency> -->
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
@@ -84,7 +84,7 @@
 					<relocations>
 						<relocation>
 							<pattern>com.logisticscraft.occlusionculling</pattern>
-							<shadedPattern>it.feargames.tileculling.libs.com.logisticscraft.occlusionculling</shadedPattern>
+							<shadedPattern>moe.taleculling.taleculling.libs.com.logisticscraft.occlusionculling</shadedPattern>
 						</relocation>
 					</relocations>
 					<filters>

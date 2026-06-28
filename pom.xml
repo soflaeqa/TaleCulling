@@ -4,23 +4,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>it.feargames.tileculling</groupId>
-	<artifactId>tileculling-parent</artifactId>
-	<version>1.2.5-SNAPSHOT</version>
+	<groupId>moe.taleculling.taleculling</groupId>
+	<artifactId>taleculling-parent</artifactId>
+	<version>0.1.0</version>
 	<packaging>pom</packaging>
 
 	<modules>
 		<module>nms</module>
 		<module>v1_16_R3</module>
-		<module>v1_17_R1</module>
-		<module>v1_18_R1</module>
-		<module>v1_18_R2</module>
-		<module>v1_19_R1</module>
-		<module>plugin</module>
-	</modules>
+        <!--<module>v1_17_R1</module>
+        <module>v1_18_R1</module>
+        <module>v1_18_R2</module>
+        <module>v1_19_R1</module>-->
+        <module>plugin</module>
+    </modules>
 
-	<properties>
-		<!-- Environment properties -->
+    <properties>
+        <!-- Environment properties -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
@@ -59,9 +59,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
-			<artifactId>ProtocolLib</artifactId>
-			<version>4.6.0</version>
+            <groupId>net.dmulloy2</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>5.3.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

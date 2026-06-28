@@ -1,5 +1,5 @@
-name: TileCulling
-main: it.feargames.tileculling.CullingPlugin
+name: TaleCulling
+main: moe.taleculling.taleculling.CullingPlugin
 version: ${project.version}
 authors: [tr7zw, sgdc3]
 api-version: 1.16

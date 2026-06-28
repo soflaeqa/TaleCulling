@@ -5,13 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>it.feargames.tileculling</groupId>
-		<artifactId>tileculling-parent</artifactId>
-		<version>1.2.5-SNAPSHOT</version>
+		<groupId>moe.taleculling.taleculling</groupId>
+		<artifactId>taleculling-parent</artifactId>
+		<version>0.1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>tileculling-nms</artifactId>
-	<version>1.2.5-SNAPSHOT</version>
+	<artifactId>taleculling-nms</artifactId>
+	<version>0.1.0</version>
 
 </project>

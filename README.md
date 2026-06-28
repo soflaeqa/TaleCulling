@@ -1,5 +1,4 @@
-# TileCulling
-[![Build Status](https://ci.codemc.io/buildStatus/icon?job=NovaverseMC%2FTileCulling)](https://ci.codemc.io/job/NovaverseMC/job/TileCulling/)
+# TaleCulling
 
 Hides tiles(mainly chests) that players are not able to see due to blocks in the way(occlusion culling), and then blocks packets for these entities. This results in the following:
 
@@ -11,8 +10,8 @@ Basically exchanging server cpu(async calculation)+memory(needs to keep snapshot
 
 ## Requires
 
-- Paper/Spigot 1.16.5 ~ 1.18.2!
-- ProtocolLib
+- Paper/Spigot 1.16.5!
+- ProtocolLib 5.3.0+
 
 ## Known issues
 
