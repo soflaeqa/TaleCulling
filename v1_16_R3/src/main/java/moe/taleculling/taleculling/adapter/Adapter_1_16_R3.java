@@ -15,7 +15,24 @@ import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockEntityState;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.server.v1_16_R3.EntityLiving;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_16_R3.EnumItemSlot;
+import net.minecraft.server.v1_16_R3.ItemStack;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.PlayerChunkMap;
+import net.minecraft.server.v1_16_R3.WorldServer;
+import com.mojang.datafixers.util.Pair;
 
+import java.util.ArrayList;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
@@ -73,7 +90,7 @@ public class Adapter_1_16_R3 implements IAdapter {
     }
 
     @Override
-    public void updateBlockState(Player player, Location location, BlockData blockData) {
+    public void hideTile(Player player, Location location, BlockData blockData) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         EntityPlayer handlePlayer = craftPlayer.getHandle();
         PlayerConnection connection = handlePlayer.playerConnection;
@@ -88,7 +105,7 @@ public class Adapter_1_16_R3 implements IAdapter {
     }
 
     @Override
-    public void updateBlockData(Player player, Location location, BlockState block) {
+    public void showTile(Player player, Location location, BlockState block) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         EntityPlayer handlePlayer = craftPlayer.getHandle();
         PlayerConnection connection = handlePlayer.playerConnection;
@@ -135,7 +152,7 @@ public class Adapter_1_16_R3 implements IAdapter {
     }
 
     @Override
-    public void transformPacket(Player player, PacketContainer container, Function<String, Boolean> tileEntityTypeFilter) {
+    public void transformTilePacket(Player player, PacketContainer container, Function<String, Boolean> tileEntityTypeFilter) {
         List<NbtBase<?>> tileEntities = container.getListNbtModifier().read(0);
         if (tileEntities.isEmpty()) {
             return;
@@ -285,6 +302,74 @@ public class Adapter_1_16_R3 implements IAdapter {
         // Replace data
         chunkBuffer = writer.array();
         container.getByteArrays().write(0, chunkBuffer);
+    }
+
+
+    @Override
+    public void hideEntity(Player player, Entity entity) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+
+        if (craftPlayer.getHandle().playerConnection == null) {
+            return;
+        }
+
+        PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(entity.getEntityId());
+        craftPlayer.getHandle().playerConnection.sendPacket(packet);
+    }
+
+    @Override
+    public void showEntity(Player player, Entity entity) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+
+        if (craftPlayer.getHandle().playerConnection == null) {
+            return;
+        }
+
+        net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();
+
+        if (entity instanceof LivingEntity) {
+            EntityLiving livingHandle = (EntityLiving) handle;
+
+            PacketPlayOutSpawnEntityLiving spawnPacket = new PacketPlayOutSpawnEntityLiving(livingHandle);
+            craftPlayer.getHandle().playerConnection.sendPacket(spawnPacket);
+
+            List<Pair<EnumItemSlot, ItemStack>> equipment = new ArrayList<>();
+
+            for (EnumItemSlot slot : EnumItemSlot.values()) {
+                equipment.add(Pair.of(slot, livingHandle.getEquipment(slot)));
+            }
+
+            PacketPlayOutEntityEquipment equipmentPacket = new PacketPlayOutEntityEquipment(entity.getEntityId(), equipment);
+            craftPlayer.getHandle().playerConnection.sendPacket(equipmentPacket);
+        } else {
+            PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(handle);
+            craftPlayer.getHandle().playerConnection.sendPacket(spawnPacket);
+        }
+
+        PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(entity.getEntityId(), handle.getDataWatcher(), true);
+
+        craftPlayer.getHandle().playerConnection.sendPacket(metadataPacket);
+    }
+
+    @Override
+    public boolean isEntityTrackedByPlayer(Player player, Entity entity) {
+        try {
+            WorldServer worldServer = (WorldServer) ((CraftEntity) player).getHandle().world;
+
+            Int2ObjectMap<PlayerChunkMap.EntityTracker> trackers = worldServer.getChunkProvider().playerChunkMap.trackedEntities;
+
+            PlayerChunkMap.EntityTracker tracker = trackers.get(entity.getEntityId());
+
+            if (tracker == null) {
+                return false;
+            }
+
+            EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
+
+            return tracker.trackedPlayers.contains(nmsPlayer);
+        } catch (Throwable ignored) {
+            return false;
+        }
     }
 
 }

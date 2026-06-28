@@ -17,6 +17,7 @@ public class CullingPlugin extends JavaPlugin {
 
     private IAdapter adapter;
     private ChunkTileVisibilityManager chunkTileVisibilityManager;
+    private ChunkEntityVisibilityManager chunkEntityVisibilityManager;
     private PlayerChunkTracker playerChunkTracker;
     private ChunkCache chunkCache;
     private VisibilityCache visibilityCache;
@@ -50,6 +51,7 @@ public class CullingPlugin extends JavaPlugin {
         visibilityCache = new VisibilityCache();
         chunkCache = new ChunkCache(this, hiddenTileRegistry);
         chunkTileVisibilityManager = new ChunkTileVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache, chunkCache);
+        chunkEntityVisibilityManager = new ChunkEntityVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache);
 
         getServer().getPluginManager().registerEvents(playerChunkTracker, this);
         getServer().getPluginManager().registerEvents(chunkCache, this);
@@ -58,7 +60,7 @@ public class CullingPlugin extends JavaPlugin {
         chunkPacketListener = new ChunkPacketListener(this, hiddenTileRegistry, adapter, playerChunkTracker);
         ProtocolLibrary.getProtocolManager().addPacketListener(chunkPacketListener);
 
-        visibilityUpdateThread = new VisibilityUpdateThread(chunkTileVisibilityManager);
+        visibilityUpdateThread = new VisibilityUpdateThread(chunkTileVisibilityManager, chunkEntityVisibilityManager);
         visibilityUpdateThread.start();
     }
 
@@ -73,9 +75,13 @@ public class CullingPlugin extends JavaPlugin {
         }
 
         // Restore visibility
-        if (chunkTileVisibilityManager != null) {
-            for (Player player : getServer().getOnlinePlayers()) {
+        for (Player player : getServer().getOnlinePlayers()) {
+            if (chunkTileVisibilityManager != null) {
                 chunkTileVisibilityManager.restoreVisibility(player);
+            }
+
+            if (chunkEntityVisibilityManager != null) {
+                chunkEntityVisibilityManager.restoreVisibility(player);
             }
         }
     }

@@ -34,7 +34,7 @@ public class ChunkPacketListener extends PacketAdapter {
 		int chunkZ = packet.getIntegers().read(1);
 		long chunkKey = LocationUtilities.getChunkKey(chunkX, chunkZ);
 		if (packet.getType() == PacketType.Play.Server.MAP_CHUNK) {
-			adapter.transformPacket(player, packet, hiddenTileRegistry::shouldHide);
+			adapter.transformTilePacket(player, packet, hiddenTileRegistry::shouldHide);
 			playerChunkTracker.trackChunk(player, chunkKey);
 		} else if (packet.getType() == PacketType.Play.Server.UNLOAD_CHUNK) {
 			playerChunkTracker.untrackChunk(player, chunkKey);

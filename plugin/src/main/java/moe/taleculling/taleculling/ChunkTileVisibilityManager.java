@@ -59,16 +59,16 @@ public class ChunkTileVisibilityManager {
 				aabbMax.set(block.getX() + 1, block.getY() + 1, block.getZ() + 1);
 				Location bloc = block.getLocation();
 				boolean canSee = culling.isAABBVisible(aabbMin, aabbMax, viewerPosition);
-				boolean hidden = visibilityCache.isHidden(player, bloc);
+				boolean hidden = visibilityCache.isBwockHidden(player, bloc);
 				if (hidden && canSee) {
-					visibilityCache.setHidden(player, bloc, false);
-					adapter.updateBlockState(player, bloc, block.getBlockData());
+					visibilityCache.setBwockHidden(player, bloc, false);
+					adapter.hideTile(player, bloc, block.getBlockData());
 					if (block instanceof TileState) {
-						adapter.updateBlockData(player, bloc, block);
+						adapter.showTile(player, bloc, block);
 					}
 				} else if (!hidden && !canSee) {
-					visibilityCache.setHidden(player, bloc, true);
-					adapter.updateBlockState(player, bloc, null);
+					visibilityCache.setBwockHidden(player, bloc, true);
+					adapter.hideTile(player, bloc, null);
 				}
 			}
 		}
@@ -90,8 +90,8 @@ public class ChunkTileVisibilityManager {
 			}
 			for (BlockState block : tiles) {
 				Location bloc = block.getLocation();
-				adapter.updateBlockState(player, bloc, block.getBlockData());
-				adapter.updateBlockData(player, bloc, block);
+				adapter.hideTile(player, bloc, block.getBlockData());
+				adapter.showTile(player, bloc, block);
 			}
 		}
 	}

@@ -10,13 +10,16 @@ public class VisibilityUpdateThread extends Thread {
 	public static final int TASK_INTERVAL = 50;
 
 	private final ChunkTileVisibilityManager chunkTileVisibilityManager;
+    private final ChunkEntityVisibilityManager chunkEntityVisibilityManager;
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
 
-	public VisibilityUpdateThread(ChunkTileVisibilityManager chunkTileVisibilityManager) {
-		super("taleculling-VisibilityUpdateThread");
-		this.chunkTileVisibilityManager = chunkTileVisibilityManager;
-	}
+    public VisibilityUpdateThread(ChunkTileVisibilityManager chunkTileVisibilityManager,
+                                  ChunkEntityVisibilityManager entityVisibilityManager) {
+        super("TaleCulling-VisibilityUpdateThread");
+        this.chunkTileVisibilityManager = chunkTileVisibilityManager;
+        this.chunkEntityVisibilityManager = entityVisibilityManager;
+    }
 
 	@Override
 	public synchronized void start() {
@@ -35,6 +38,7 @@ public class VisibilityUpdateThread extends Thread {
 			long start = System.currentTimeMillis();
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				chunkTileVisibilityManager.updateVisibility(player);
+                chunkEntityVisibilityManager.updateVisibility(player);
 			}
 			long took = System.currentTimeMillis() - start;
 			long sleep = Math.max(0, TASK_INTERVAL - took);

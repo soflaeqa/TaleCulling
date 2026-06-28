@@ -23,12 +23,13 @@ import java.util.function.LongPredicate;
 public class VisibilityCache implements Listener {
 
     private final Map<Player, Long2BooleanMap> hiddenBlocks = new HashMap<>();
+    private final Map<Player, Long2BooleanMap> hiddenEntities = new HashMap<>();
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final WriteLock writeLock = lock.writeLock();
     private final ReadLock readLock = lock.readLock();
 
-    public void setHidden(Player player, long blockKey, boolean hidden) {
+    public void setBwockHidden(Player player, long blockKey, boolean hidden) {
         try {
             writeLock.lock();
             Long2BooleanMap blocks = hiddenBlocks.computeIfAbsent(player, p -> new Long2BooleanOpenHashMap());
@@ -38,11 +39,11 @@ public class VisibilityCache implements Listener {
         }
     }
 
-    public void setHidden(Player player, Location blockLocation, boolean hidden) {
-        setHidden(player, LocationUtilities.getBlockKey(blockLocation), hidden);
+    public void setBwockHidden(Player player, Location blockLocation, boolean hidden) {
+        setBwockHidden(player, LocationUtilities.getBlockKey(blockLocation), hidden);
     }
 
-    public boolean isHidden(Player player, long blockKey) {
+    public boolean isBwockHidden(Player player, long blockKey) {
         try {
             readLock.lock();
             Long2BooleanMap blocks = hiddenBlocks.get(player);
@@ -58,8 +59,39 @@ public class VisibilityCache implements Listener {
         }
     }
 
-    public boolean isHidden(Player player, Location blockLocation) {
-        return isHidden(player, LocationUtilities.getBlockKey(blockLocation));
+    public boolean isBwockHidden(Player player, Location blockLocation) {
+        return isBwockHidden(player, LocationUtilities.getBlockKey(blockLocation));
+    }
+
+    public void setEntityHidden(Player player, int entityId, boolean hidden) {
+        try {
+            writeLock.lock();
+
+            Long2BooleanMap entities = hiddenEntities.computeIfAbsent(
+                    player,
+                    p -> new Long2BooleanOpenHashMap()
+            );
+
+            entities.put(entityId, hidden);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public boolean isEntityHidden(Player player, int entityId) {
+        try {
+            readLock.lock();
+
+            Long2BooleanMap entities = hiddenEntities.get(player);
+
+            if (entities == null) {
+                return false;
+            }
+
+            return entities.getOrDefault(entityId, false);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @EventHandler
@@ -90,6 +122,7 @@ public class VisibilityCache implements Listener {
         try {
             writeLock.lock();
             hiddenBlocks.remove(player);
+            hiddenEntities.remove(player);
         } finally {
             writeLock.unlock();
         }
