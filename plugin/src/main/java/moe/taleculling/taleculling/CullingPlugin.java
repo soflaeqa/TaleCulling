@@ -14,6 +14,7 @@ public class CullingPlugin extends JavaPlugin {
 
     private SettingsHolder settings;
     private HiddenTileRegistry hiddenTileRegistry;
+    private HiddenEntityRegistry hiddenEntityRegistry;
 
     private IAdapter adapter;
     private ChunkTileVisibilityManager chunkTileVisibilityManager;
@@ -33,6 +34,8 @@ public class CullingPlugin extends JavaPlugin {
         settings.load(getConfig().getConfigurationSection("settings"));
         hiddenTileRegistry = new HiddenTileRegistry(getLogger());
         hiddenTileRegistry.load(getConfig().getConfigurationSection("hiddenTiles"));
+        hiddenEntityRegistry = new HiddenEntityRegistry(getLogger());
+        hiddenEntityRegistry.load(getConfig().getConfigurationSection("hiddenEntities"));
 
         try {
             String nmsVersion = getServer().getClass().getName().split("\\.")[3].substring(1);
@@ -51,7 +54,7 @@ public class CullingPlugin extends JavaPlugin {
         visibilityCache = new VisibilityCache();
         chunkCache = new ChunkCache(this, hiddenTileRegistry);
         chunkTileVisibilityManager = new ChunkTileVisibilityManager(adapter, playerChunkTracker, visibilityCache, chunkCache);
-        chunkEntityVisibilityManager = new ChunkEntityVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache);
+        chunkEntityVisibilityManager = new ChunkEntityVisibilityManager(settings, adapter, playerChunkTracker, visibilityCache, hiddenEntityRegistry);
 
         getServer().getPluginManager().registerEvents(playerChunkTracker, this);
         getServer().getPluginManager().registerEvents(chunkCache, this);

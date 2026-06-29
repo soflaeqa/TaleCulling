@@ -6,11 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Painting;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.util.Vector;
 
 public class ChunkEntityVisibilityManager {
@@ -19,17 +15,16 @@ public class ChunkEntityVisibilityManager {
     private final IAdapter adapter;
     private final VisibilityCache visibilityCache;
 
-    private final double entityRange;
-    private final double entityRangeSquareThing;
+    private final SettingsHolder settings;
+    private final HiddenEntityRegistry hiddenEntityRegistry;
     private final PlayerChunkTracker playerTracker;
 
-    public ChunkEntityVisibilityManager(SettingsHolder settings, IAdapter adapter, PlayerChunkTracker playerTracker, VisibilityCache visibilityCache) {
+    public ChunkEntityVisibilityManager(SettingsHolder settings, IAdapter adapter, PlayerChunkTracker playerTracker, VisibilityCache visibilityCache, HiddenEntityRegistry hiddenEntityRegistry) {
+        this.settings = settings;
         this.adapter = adapter;
         this.playerTracker = playerTracker;
         this.visibilityCache = visibilityCache;
-
-        this.entityRange = settings.getTileRange();
-        this.entityRangeSquareThing = entityRange * entityRange;
+        this.hiddenEntityRegistry = hiddenEntityRegistry;
     }
 
     public void updateVisibility(Player player) {
@@ -146,18 +141,18 @@ public class ChunkEntityVisibilityManager {
         }
 
         if (entity instanceof Player) {
-            return false;
+            return hiddenEntityRegistry.shouldHide(entity);
         }
 
-        if (entity instanceof ExperienceOrb) {
-            return false;
+        if (entity instanceof ArmorStand) {
+            return hiddenEntityRegistry.shouldHide(entity);
         }
 
-        if (entity instanceof Painting) {
-            return false;
+        if (hiddenEntityRegistry.shouldHide(entity)) {
+            return true;
         }
 
-        return entity instanceof LivingEntity;
+        return settings.isHideLivingEntities() && entity instanceof LivingEntity;
     }
 
 

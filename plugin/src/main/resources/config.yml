@@ -1,5 +1,8 @@
 settings:
   tileRange: 64
+  # ALL alive mobs will be hidden with this setting
+  hideLivingEntities: true
+
 hiddenTiles:
   materials:
     # Inventory holders
@@ -31,3 +34,28 @@ hiddenTiles:
   tags:
     - SHULKER_BOXES
     - SIGNS
+
+hiddenEntities:
+  types:
+    # Special living-like entities
+    - ARMOR_STAND
+    # Hanging entities
+    - ITEM_FRAME
+    - PAINTING
+    # Vehicles
+    - BOAT
+    - MINECART
+    - MINECART_CHEST
+    - MINECART_FURNACE
+    - MINECART_HOPPER
+    - MINECART_TNT
+    - MINECART_COMMAND
+    - MINECART_MOB_SPAWNER
+    # Special visible entities
+    - ENDER_CRYSTAL
+    # Misc in case if anynyan need
+    # - PLAYER
+    # - EXPERIENCE_ORB
+    # - DROPPED_ITEM
+    # - FALLING_BLOCK
+
