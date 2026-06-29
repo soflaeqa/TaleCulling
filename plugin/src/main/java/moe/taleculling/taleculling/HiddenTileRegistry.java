@@ -76,7 +76,7 @@ public class HiddenTileRegistry {
 					return true;
 				}
 			}
-			return true;
+            return false;
 		} finally {
 			readLock.unlock();
 		}
@@ -90,7 +90,7 @@ public class HiddenTileRegistry {
 					return true;
 				}
 			}
-			return true;
+            return false;
 		} finally {
 			readLock.unlock();
 		}

@@ -5,19 +5,37 @@ settings:
 
 hiddenTiles:
   materials:
-    # Inventory holders
+    # Containers
     - CHEST
     - TRAPPED_CHEST
+    - BARREL
     - FURNACE
+    - BLAST_FURNACE
+    - SMOKER
     - DISPENSER
     - DROPPER
     - HOPPER
     - BREWING_STAND
-    - BARREL
-    # Misc
+    - ENDER_CHEST
+    # Functional tile entities
     - SPAWNER
     - ENCHANTING_TABLE
-    - ENDER_CHEST
+    - BEACON
+    - LECTERN
+    - JUKEBOX
+    - BELL
+    - CONDUIT
+    - CAMPFIRE
+    - SOUL_CAMPFIRE
+    - BEE_NEST
+    - BEEHIVE
+    # Misc
+    - COMMAND_BLOCK
+    - CHAIN_COMMAND_BLOCK
+    - REPEATING_COMMAND_BLOCK
+    - STRUCTURE_BLOCK
+    - JIGSAW
+    - END_GATEWAY
     # Skulls
     - SKELETON_SKULL
     - SKELETON_WALL_SKULL
@@ -34,6 +52,8 @@ hiddenTiles:
   tags:
     - SHULKER_BOXES
     - SIGNS
+    - BANNERS
+    - BEDS
 
 hiddenEntities:
   types:

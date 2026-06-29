@@ -7,18 +7,18 @@
 	<parent>
 		<groupId>moe.taleculling.taleculling</groupId>
 		<artifactId>taleculling-parent</artifactId>
-		<version>0.3.0</version>
+		<version>0.3.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>taleculling-plugin</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 
 	<dependencies>
 		<dependency>
 			<groupId>moe.taleculling.taleculling</groupId>
 			<artifactId>taleculling-v1_16_R3</artifactId>
-			<version>0.3.0</version>
+			<version>0.3.1</version>
 		</dependency>
         <!-- <dependency>
 			<groupId>moe.taleculling.taleculling</groupId>
